@@ -1,0 +1,26 @@
+package com.example.myhistoryapp
+
+import android.os.Bundle
+import android.widget.Button
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import com.example.myhistoryapp.R
+
+class ScoreActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_score)
+
+        val score = intent.getIntExtra("SCORE", 0)
+        val feedback = if (score > 3) "Great job!" else "Keep practising!"
+        findViewById<TextView>(R.id.scoreText).text = "Score: $score\n$feedback"
+
+        findViewById<Button>(R.id.reviewButton).setOnClickListener {
+            // Optionally go to another review activity or show a dialog
+        }
+
+        findViewById<Button>(R.id.exitButton).setOnClickListener {
+            finishAffinity() // Terminates app
+        }
+    }
+}
