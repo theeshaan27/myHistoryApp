@@ -1,0 +1,112 @@
+package com.example.myhistoryapp
+import android.os.Bundle
+import android.widget.Button
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import com.example.myhistoryapp.R
+
+class QuizActivity : AppCompatActivity() {
+    private val questions = arrayOf(
+        "Nelson Mandela was the president in 1994",
+        "South Africa has 9 provinces",
+        "The apartheid ended in 1999",
+        "Cape Town is the capital of South Africa",
+        "The Kruger National Park is in Gauteng"
+    )
+
+    private val answers = arrayOf(true, false, false, false, false)
+
+    private var currentIndex = 0
+    private var score = 0
+    private var hasAnswered = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_quiz)
+
+        showQuestion()
+        updateUI()
+
+        findViewById<Button>(R.id.trueButton).setOnClickListener {
+            if (!hasAnswered) checkAnswer(true)
+        }
+        findViewById<Button>(R.id.falseButton).setOnClickListener {
+            if (!hasAnswered) checkAnswer(false)
+        }
+        findViewById<Button>(R.id.nextButton).setOnClickListener { nextQuestion() }
+    }
+
+    private fun showQuestion() {
+        findViewById<TextView>(R.id.questionText).text = questions[currentIndex]
+        hasAnswered = false
+        updateUI()
+    }
+
+    private fun checkAnswer(userAnswer: Boolean) {
+        if (hasAnswered) return
+
+        hasAnswered = true
+        val feedback = if (userAnswer == answers[currentIndex]) {
+            score++
+            "Correct!"
+        } else {
+            "Incorrect! The correct answer is ${if (answers[currentIndex]) "True" else "False"}"
+        }
+        Toast.makeText(this, feedback, Toast.LENGTH_SHORT).show()
+        updateUI()
+    }
+
+    private fun nextQuestion() {
+        if (++currentIndex < questions.size) {
+            showQuestion()
+        } else {
+            showFinalScore()
+        }
+    }
+
+    private fun updateUI() {
+        val nextButton = findViewById<Button>(R.id.nextButton)
+        val trueButton = findViewById<Button>(R.id.trueButton)
+        val falseButton = findViewById<Button>(R.id.falseButton)
+
+        // Enable/disable buttons based on state
+        trueButton.isEnabled = !hasAnswered
+        falseButton.isEnabled = !hasAnswered
+        nextButton.isEnabled = hasAnswered || currentIndex == questions.size - 1
+
+        // Update next button text for last question
+        if (currentIndex == questions.size - 1 && hasAnswered) {
+            nextButton.text = "View Results"
+        } else {
+            nextButton.text = "Next"
+        }
+    }
+
+    private fun showFinalScore() {
+        // Option 1: Show results in current activity
+        val percentage = (score.toFloat() / questions.size * 100).toInt()
+        val resultMessage = "Quiz Complete!\nScore: $score/${questions.size} ($percentage%)"
+
+        AlertDialog.Builder(this)
+            .setTitle("Quiz Results")
+            .setMessage(resultMessage)
+            .setPositiveButton("Restart") { _, _ ->
+                resetQuiz()
+            }
+            .setNegativeButton("Exit") { _, _ ->
+                finish()
+            }
+            .setCancelable(false)
+            .show()
+
+    }
+
+    private fun resetQuiz() {
+        currentIndex = 0
+        score = 0
+        hasAnswered = false
+        showQuestion()
+    }
+}
